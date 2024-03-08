@@ -12,3 +12,15 @@ export interface TExpensesData {
   createdAt: string | Date;
 }
 
+export interface IIncomeData {
+  id: string;
+  amount: number;
+  description: string;
+  createdAt: string | Date;
+}
+
+export interface IIncomeDataMutation {
+  amount: string;
+  description: string;
+  createdAt: string;
+}
