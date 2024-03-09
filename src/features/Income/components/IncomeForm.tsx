@@ -19,10 +19,7 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
     const { name, value } = e.target;
 
     setState((prevState) => {
-      return {
-        ...prevState,
-        [name]: name === 'amount' ? parseFloat(value) : value,
-      };
+      return { ...prevState, [name]: value };
     });
   };
 
@@ -37,7 +34,11 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
     const collectionIncome = collection(db, 'income');
 
     try {
-      const docSnap = await addDoc(collectionIncome, newIncome);
+      const docSnap = await addDoc(collectionIncome, {
+        ...newIncome,
+        amount: parseFloat(newIncome.amount),
+      });
+
       setIncome((prevState) => [
         ...prevState,
         {
@@ -46,6 +47,7 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
           amount: parseFloat(newIncome.amount),
         },
       ]);
+
       setState({
         amount: '',
         description: '',
