@@ -19,7 +19,7 @@ const Income: React.FC<Props> = ({ income, setIncome }) => {
           id: doc.id,
           amount: doc.data().amount,
           description: doc.data().description,
-          createdAt: new Date(doc.data().createdAt),
+          createdAt: doc.data().createdAt,
         };
       });
 

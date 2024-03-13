@@ -12,7 +12,7 @@ const IncomeItem: React.FC<Props> = ({ data, deleteIncomeFunction }) => {
     <div>
       <div>
         <p className="font-semibold">{data.description}</p>
-        <small className="text-xs">{String(data.createdAt)}</small>
+        <small className="text-xs">{data.createdAt}</small>
       </div>
       <p className="flex items-center gap-2">
         {currencyFormatter(data.amount)}

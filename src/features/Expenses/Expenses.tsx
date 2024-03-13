@@ -24,7 +24,7 @@ const Expenses: React.FC<Props> = ({ expenses, setExpenses }) => {
           items: doc.data().items.map((item: TExpensesData) => ({
             id: item.id,
             amount: item.amount,
-            createdAt: new Date(item.createdAt),
+            createdAt: item.createdAt,
           })),
         };
       });
@@ -44,7 +44,7 @@ const Expenses: React.FC<Props> = ({ expenses, setExpenses }) => {
       <h3 className="text-2xl ">My Expenses</h3>
       <div className="flex flex-col gap-4 mt-6">
         {expenses.map((item) => {
-          return <ExpensesItem key={item.id} data={item} />;
+          return <ExpensesItem key={item.id} expense={item} setExpenses={setExpenses} />;
         })}
       </div>
       <section className="py-6">
