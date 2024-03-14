@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
-import { IExpensesData, TExpensesData } from '@/types';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-import ExpensesItem from '@/features/Expenses/components/ExpensesItem';
-import Stats from '@/features/Stats/Stats';
+import ExpensesItem from '@/features/Home/Expenses/components/ExpensesItem';
+import Stats from '@/features/Home/Stats/Stats';
+import { IExpensesData, TExpensesData } from '@/types';
 
 interface Props {
   expenses: IExpensesData[];
@@ -41,15 +41,23 @@ const Expenses: React.FC<Props> = ({ expenses, setExpenses }) => {
 
   return (
     <div>
-      <h3 className="text-2xl ">My Expenses</h3>
-      <div className="flex flex-col gap-4 mt-6">
-        {expenses.map((item) => {
-          return <ExpensesItem key={item.id} expense={item} setExpenses={setExpenses} />;
-        })}
-      </div>
-      <section className="py-6">
-        <Stats data={expenses} />
-      </section>
+      <h3 className="text-2xl">My Expenses</h3>
+      {expenses.length > 0 ? (
+        <div>
+          <div className="flex flex-col gap-4 mt-6">
+            {expenses.map((item) => (
+              <ExpensesItem key={item.id} expense={item} setExpenses={setExpenses} />
+            ))}
+          </div>
+          <section className="py-6">
+            <Stats data={expenses} />
+          </section>
+        </div>
+      ) : (
+        <div className="mt-4">
+          <p>No expenses available! Add expense!</p>
+        </div>
+      )}
     </div>
   );
 };

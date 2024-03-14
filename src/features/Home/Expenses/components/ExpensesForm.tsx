@@ -1,28 +1,31 @@
 import React, { useState } from 'react';
-import { IExpensesData, IExpensesDataMutation } from '@/types';
-import { uuidv4 } from '@firebase/util';
 import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
+import { nanoid } from 'nanoid';
 import { db } from '@/firebaseConfig';
+import { IExpensesData, IExpensesDataMutation } from '@/types';
 
 interface Props {
   expenses: IExpensesData[];
   setExpenses: React.Dispatch<React.SetStateAction<IExpensesData[]>>;
   onClose: (status: boolean) => void;
 }
-const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
-  const [state, setState] = useState<IExpensesDataMutation>({
-    color: '',
-    title: '',
-    total: '',
-    items: [
-      {
-        id: '',
-        amount: '',
-        createdAt: '',
-      },
-    ],
-  });
 
+const initialState: IExpensesDataMutation = {
+  color: '#000000',
+  title: '',
+  total: '',
+  items: [
+    {
+      id: '',
+      amount: '',
+      createdAt: '',
+    },
+  ],
+};
+
+const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
+  const [state, setState] = useState<IExpensesDataMutation>(initialState);
   const [selectedCategory, setSelectedCategory] = useState<null | string>(null);
   const [showAddExpense, setShowAddExpense] = useState<boolean>(false);
 
@@ -54,10 +57,10 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
     expenseCategoryId: string,
     newExpense: IExpensesDataMutation,
   ) => {
-    const docRef = doc(db, 'expenses', expenseCategoryId);
+    const docExpense = doc(db, 'expenses', expenseCategoryId);
 
     try {
-      await updateDoc(docRef, {
+      await updateDoc(docExpense, {
         ...newExpense,
         total: parseFloat(newExpense.total) + parseFloat(state.items[0].amount),
         items: newExpense.items.map((item) => ({
@@ -68,11 +71,13 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
       });
 
       setExpenses((prevState) => {
-        const updatedExpenses = [...prevState];
+        const updateExpenses = [...prevState];
 
-        const foundIndex = updatedExpenses.findIndex((expense) => expense.id === expenseCategoryId);
+        const foundIndex = updateExpenses.findIndex((expense) => {
+          return expense.id === expenseCategoryId;
+        });
 
-        updatedExpenses[foundIndex] = {
+        updateExpenses[foundIndex] = {
           id: expenseCategoryId,
           ...newExpense,
           total: parseFloat(newExpense.total) + parseFloat(state.items[0].amount),
@@ -83,14 +88,14 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
           })),
         };
 
-        return updatedExpenses;
+        return updateExpenses;
       });
     } catch (error) {
       throw error;
     }
   };
 
-  const addExpense = async () => {
+  const addExpenseItem = async () => {
     const expenseItem: IExpensesData | undefined = expenses.find((expense) => {
       return expense.id === selectedCategory;
     });
@@ -109,7 +114,7 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
           {
             amount: state.items[0].amount,
             createdAt: new Date().toISOString(),
-            id: uuidv4(),
+            id: nanoid(),
           },
         ],
       };
@@ -117,22 +122,24 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
       if (selectedCategory) {
         try {
           await updateExpenseItem(selectedCategory, newExpenses);
-          setState({
-            color: '',
-            title: '',
-            total: '',
-            items: [{ id: '', amount: '', createdAt: '' }],
-          });
+          setState(initialState);
           setSelectedCategory(null);
           onClose(false);
+          toast.success('Expense item added! ');
         } catch (error) {
-          console.log(error);
+          console.log('Firestore Error:', error);
+          toast.error(`Firestore Error: ${error}`);
         }
       }
     }
   };
 
   const addCategory = async () => {
+    if (!state.title) {
+      toast.error('Please fill in title field!.');
+      return;
+    }
+
     try {
       const collectionExpenses = collection(db, 'expenses');
 
@@ -142,14 +149,15 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
         items: [],
       };
 
-      const docSnap = await addDoc(collectionExpenses, {
+      const newExpenseDocSnap = await addDoc(collectionExpenses, {
         ...newCategory,
+        total: parseFloat('0'),
       });
 
       setExpenses((prevState) => [
         ...prevState,
         {
-          id: docSnap.id,
+          id: newExpenseDocSnap.id,
           ...newCategory,
           total: parseFloat(newCategory.total),
           items: [],
@@ -157,14 +165,16 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
       ]);
 
       setShowAddExpense(false);
+      toast.success('Category created!');
     } catch (error) {
-      console.log(error);
+      console.log('Firestore Error:', error);
+      toast.error(`Firestore Error: ${error}`);
     }
   };
 
   return (
     <>
-      <div className="input-group">
+      <div className="input-group px-5">
         <label htmlFor="amount">Expenses Amount</label>
         <input
           id="amount"
@@ -175,12 +185,14 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
           placeholder="Enter expenses amount"
           value={state.items[0].amount}
           onChange={onChangeExpenseAmount}
-          required
         />
       </div>
 
       {parseFloat(state.items[0].amount) > 0 && (
-        <div className="flex flex-col gap-4 mt-6">
+        <div
+          className="flex flex-col gap-4 mt-6 px-5 py-2"
+          style={{ maxHeight: '500px', overflowY: 'auto' }}
+        >
           <div className="flex items-center justify-between">
             <h3 className="capitalize text-2xl">Select expense category</h3>
             <button
@@ -202,7 +214,6 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
                 placeholder="Enter Title"
                 value={state.title}
                 onChange={onChangeCategory}
-                required
               />
 
               <label htmlFor="color">Pick Color</label>
@@ -213,7 +224,6 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
                 name="color"
                 value={state.color}
                 onChange={onChangeCategory}
-                required
               />
               <button className="btn btn-primary-outline" onClick={addCategory}>
                 Create
@@ -228,6 +238,7 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
               </button>
             </div>
           )}
+
           {expenses.map((expense) => {
             return (
               <button
@@ -255,9 +266,11 @@ const ExpensesForm: React.FC<Props> = ({ expenses, setExpenses, onClose }) => {
       )}
 
       {parseFloat(state.items[0].amount) > 0 && (
-        <button type="submit" className="btn btn-primary mt-6" onClick={addExpense}>
-          Add Expense
-        </button>
+        <div className="px-5">
+          <button type="submit" className="btn btn-primary mt-6" onClick={addExpenseItem}>
+            Add Expense
+          </button>
+        </div>
       )}
     </>
   );

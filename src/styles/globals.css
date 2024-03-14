@@ -3,12 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-slate-900 text-white relative;
   }
 
   button {
-    @apply transition-all duration-100 hover:scale-110;
+    @apply transition-all duration-100 hover:scale-105;
   }
 
   input {

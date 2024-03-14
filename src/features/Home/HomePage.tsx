@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { currencyFormatter } from '@/utils';
 import ModalWindow from '@/components/ModalWindow/ModalWindow';
 import IncomeForm from '@/features/Home/Income/components/IncomeForm';
 import ExpensesForm from '@/features/Home/Expenses/components/ExpensesForm';
-import { currencyFormatter } from '@/utils';
 import Expenses from '@/features/Home/Expenses/Expenses';
 import { IExpensesData, IIncomeData } from '@/types';
 
@@ -26,21 +26,10 @@ const HomePage = () => {
 
     setBalance(newBalance);
   }, [income, expenses]);
+
   return (
     <>
-      <ModalWindow show={showAddIncomeModal} onClose={setShowAddIncomeModal}>
-        <IncomeForm income={income} setIncome={setIncome} />
-      </ModalWindow>
-
-      <ModalWindow show={showAddExpensesModal} onClose={setShowAddExpensesModal}>
-        <ExpensesForm
-          expenses={expenses}
-          setExpenses={setExpenses}
-          onClose={setShowAddExpensesModal}
-        />
-      </ModalWindow>
-
-      <main className="container max-w-6xl px-6 mx-auto">
+      <main className="container max-w-6xl px-6 mx-auto mt-20">
         <section className="py-3">
           <small className="text-gray-400 text-md">My balance</small>
           <h2 className="text-4xl font-bold">{currencyFormatter(balance)}</h2>
@@ -69,6 +58,18 @@ const HomePage = () => {
           <Expenses expenses={expenses} setExpenses={setExpenses} />
         </section>
       </main>
+
+      <ModalWindow show={showAddIncomeModal} onClose={setShowAddIncomeModal}>
+        <IncomeForm income={income} setIncome={setIncome} />
+      </ModalWindow>
+
+      <ModalWindow show={showAddExpensesModal} onClose={setShowAddExpensesModal}>
+        <ExpensesForm
+          expenses={expenses}
+          setExpenses={setExpenses}
+          onClose={setShowAddExpensesModal}
+        />
+      </ModalWindow>
     </>
   );
 };

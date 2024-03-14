@@ -37,3 +37,9 @@ export interface IIncomeDataMutation {
   description: string;
   createdAt: string;
 }
+
+export interface IUser {
+  uid: string;
+  displayName: string;
+  photoURL: string;
+}

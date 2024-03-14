@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { IExpensesData } from '@/types';
 import { currencyFormatter } from '@/utils';
-import ViewExpense from '@/features/Expenses/components/ViewExpense';
+import ViewExpense from '@/features/Home/Expenses/components/ViewExpense';
+import { IExpensesData } from '@/types';
 
 interface Props {
   expense: IExpensesData;

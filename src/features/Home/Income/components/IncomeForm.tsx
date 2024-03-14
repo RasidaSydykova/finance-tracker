@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { IIncomeData, IIncomeDataMutation } from '@/types';
 import { addDoc, collection } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 import { db } from '@/firebaseConfig';
-import Income from '@/features/Income/Income';
+import Income from '@/features/Home/Income/Income';
+import { IIncomeData, IIncomeDataMutation} from '@/types';
 
 interface Props {
   income: IIncomeData[];
   setIncome: React.Dispatch<React.SetStateAction<IIncomeData[]>>;
 }
+const initialState: IIncomeDataMutation = {
+  amount: '',
+  description: '',
+  createdAt: '',
+};
 const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
-  const [state, setState] = useState<IIncomeDataMutation>({
-    amount: '',
-    description: '',
-    createdAt: '',
-  });
+  const [state, setState] = useState<IIncomeDataMutation>(initialState);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,6 +32,11 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
       ...state,
       createdAt: new Date().toISOString(),
     };
+
+    if (!state.amount || !state.description) {
+      toast.error('Please fill in all fields!.');
+      return;
+    }
 
     const collectionIncome = collection(db, 'income');
 
@@ -48,19 +55,17 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
         },
       ]);
 
-      setState({
-        amount: '',
-        description: '',
-        createdAt: '',
-      });
+      setState(initialState);
+      toast.success('Income added successfully!');
     } catch (error) {
       console.error('Firestore Error:', error);
+      toast.error(`Firestore Error: ${error}`);
     }
   };
 
   return (
     <>
-      <form className="input-group" onSubmit={onIncomeFormSubmit}>
+      <form className="input-group px-5" onSubmit={onIncomeFormSubmit}>
         <div className="input-group">
           <label htmlFor="amount">Income Amount</label>
           <input
@@ -72,7 +77,6 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
             placeholder="Enter income amount"
             value={state.amount}
             onChange={onChange}
-            required
           />
         </div>
 
@@ -85,7 +89,6 @@ const IncomeForm: React.FC<Props> = ({ income, setIncome }) => {
             placeholder="Enter income description"
             value={state.description}
             onChange={onChange}
-            required
           />
         </div>
 
