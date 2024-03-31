@@ -3,7 +3,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { db } from '@/firebaseConfig';
 import Income from '@/features/Home/Income/Income';
-import { IIncomeData, IIncomeDataMutation} from '@/types';
+import { IIncomeData, IIncomeDataMutation } from '@/types';
 
 interface Props {
   income: IIncomeData[];

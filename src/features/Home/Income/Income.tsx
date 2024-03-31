@@ -51,7 +51,10 @@ const Income: React.FC<Props> = ({ income, setIncome }) => {
 
   return (
     <>
-      <div className="flex flex-col gap-4 mt-6 px-5" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+      <div
+        className="flex flex-col gap-4 mt-6 px-5"
+        style={{ maxHeight: '400px', overflowY: 'auto' }}
+      >
         <h3 className="text-2xl">Income History</h3>
 
         {income.map((item) => {

@@ -10,7 +10,8 @@ const ModalWindow: React.FC<Props> = ({ show, onClose, children }) => {
   return (
     <div
       style={{
-        transform: show ? 'translateX(0%)' : 'translateX(-200%)', top: '-70px',
+        transform: show ? 'translateX(0%)' : 'translateX(-200%)',
+        top: '-70px',
       }}
       className="absolute left-0 right-0 z-20 w-full h-full transition-all duration-1000"
     >
